@@ -9,3 +9,13 @@ export const db = mysql.createPool({
   password: process.env.DB_PASS || "",
   database: process.env.DB_NAME || "siragil_db",
 });
+
+export const testDBConnection = async () => {
+  try {
+    const connection = await db.getConnection();
+    console.log("✅ Database connected successfully");
+    connection.release();
+  } catch (err) {
+    console.error("❌ Database connection failed:", err);
+  }
+};
