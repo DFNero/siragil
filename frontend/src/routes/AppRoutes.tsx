@@ -1,11 +1,12 @@
 // src/routes/AppRoutes.tsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import type { ReactElement } from "react";
 import Login from "../pages/Login";
 import AdminTest from "../pages/AdminTest";
 import KasirTest from "../pages/KasirTest";
 import { useAuth } from "../context/UseAuth";
 
-const PrivateRoute = ({ children, role }: { children: JSX.Element; role: string }) => {
+const PrivateRoute = ({ children, role }: { children: ReactElement; role: string }) => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" />;
   if (user.role !== role) return <Navigate to="/login" />;
@@ -36,3 +37,5 @@ export const AppRoutes = () => (
     </Routes>
   </BrowserRouter>
 );
+
+export default AppRoutes;
