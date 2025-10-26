@@ -5,6 +5,7 @@ import Login from "../pages/Login";
 import AdminTest from "../pages/AdminTest";
 import KasirTest from "../pages/KasirTest";
 import { useAuth } from "../context/UseAuth";
+import Register from "../pages/Register"
 
 const PrivateRoute = ({ children, role }: { children: ReactElement; role: string }) => {
   const { user } = useAuth();
@@ -17,6 +18,7 @@ export const AppRoutes = () => (
   <BrowserRouter>
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/Register" element={<Register />} />
       <Route
         path="/admin"
         element={

@@ -1,12 +1,15 @@
-import React, { useState, Children, useRef, useLayoutEffect, HTMLAttributes, ReactNode } from 'react';
-import { motion, AnimatePresence, Variants } from 'motion/react';
+import React, { useState, Children, useRef, useLayoutEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
 
-import '../styles/RegisterStepper.css';
+import type { HTMLAttributes, ReactNode } from "react";
+import type { Variants } from "framer-motion";
+
+import "../styles/RegisterStepper.css";
 
 interface StepperProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   initialStep?: number;
-  onStepChange?: (step: number) => void;
+  onStepChange?: (step: number) => boolean | void; // Return false to prevent step change
   onFinalStepCompleted?: () => void;
   stepCircleContainerClassName?: string;
   stepContainerClassName?: string;
@@ -18,18 +21,20 @@ interface StepperProps extends HTMLAttributes<HTMLDivElement> {
   nextButtonText?: string;
   disableStepIndicators?: boolean;
   renderStepIndicator?: (props: RenderStepIndicatorProps) => ReactNode;
+  completedSteps?: number[]; // Track completed steps
 }
 
 interface RenderStepIndicatorProps {
   step: number;
   currentStep: number;
   onStepClick: (clicked: number) => void;
+  isCompleted: boolean;
 }
 
 export default function Stepper({
   children,
   initialStep = 1,
-  onStepChange = () => {},
+  onStepChange = () => true,
   onFinalStepCompleted = () => {},
   stepCircleContainerClassName = '',
   stepContainerClassName = '',
@@ -45,17 +50,30 @@ export default function Stepper({
 }: StepperProps) {
   const [currentStep, setCurrentStep] = useState<number>(initialStep);
   const [direction, setDirection] = useState<number>(0);
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  
   const stepsArray = Children.toArray(children);
   const totalSteps = stepsArray.length;
   const isCompleted = currentStep > totalSteps;
   const isLastStep = currentStep === totalSteps;
 
   const updateStep = (newStep: number) => {
+    // Call validation callback
+    const canProceed = onStepChange(newStep);
+    
+    if (canProceed === false) {
+      return; // Block step change if validation fails
+    }
+
+    // Mark current step as completed when moving forward
+    if (newStep > currentStep) {
+      setCompletedSteps(prev => new Set([...prev, currentStep]));
+    }
+
     setCurrentStep(newStep);
+    
     if (newStep > totalSteps) {
       onFinalStepCompleted();
-    } else {
-      onStepChange(newStep);
     }
   };
 
@@ -75,25 +93,39 @@ export default function Stepper({
 
   const handleComplete = () => {
     setDirection(1);
+    
+    // Validate before completing
+    const canComplete = onStepChange(currentStep);
+    if (canComplete === false) {
+      return;
+    }
+    
+    setCompletedSteps(prev => new Set([...prev, currentStep]));
     updateStep(totalSteps + 1);
   };
 
   return (
     <div className="outer-container" {...rest}>
-      <div className={`step-circle-container ${stepCircleContainerClassName}`} style={{ border: '1px solid #222' }}>
+      <div className={`step-circle-container ${stepCircleContainerClassName}`}>
         <div className={`step-indicator-row ${stepContainerClassName}`}>
           {stepsArray.map((_, index) => {
             const stepNumber = index + 1;
             const isNotLastStep = index < totalSteps - 1;
+            const isStepCompleted = completedSteps.has(stepNumber);
+            
             return (
               <React.Fragment key={stepNumber}>
                 {renderStepIndicator ? (
                   renderStepIndicator({
                     step: stepNumber,
                     currentStep,
+                    isCompleted: isStepCompleted,
                     onStepClick: clicked => {
-                      setDirection(clicked > currentStep ? 1 : -1);
-                      updateStep(clicked);
+                      // Only allow clicking on completed steps or current step
+                      if (clicked <= currentStep || isStepCompleted) {
+                        setDirection(clicked > currentStep ? 1 : -1);
+                        setCurrentStep(clicked);
+                      }
                     }
                   })
                 ) : (
@@ -101,13 +133,21 @@ export default function Stepper({
                     step={stepNumber}
                     disableStepIndicators={disableStepIndicators}
                     currentStep={currentStep}
+                    isCompleted={isStepCompleted}
                     onClickStep={clicked => {
-                      setDirection(clicked > currentStep ? 1 : -1);
-                      updateStep(clicked);
+                      // Only allow clicking on completed steps or going back
+                      if (clicked <= currentStep || isStepCompleted) {
+                        setDirection(clicked > currentStep ? 1 : -1);
+                        setCurrentStep(clicked);
+                      }
                     }}
                   />
                 )}
-                {isNotLastStep && <StepConnector isComplete={currentStep > stepNumber} />}
+                {isNotLastStep && (
+                  <StepConnector 
+                    isComplete={completedSteps.has(stepNumber)} 
+                  />
+                )}
               </React.Fragment>
             );
           })}
@@ -134,7 +174,11 @@ export default function Stepper({
                   {backButtonText}
                 </button>
               )}
-              <button onClick={isLastStep ? handleComplete : handleNext} className="next-button" {...nextButtonProps}>
+              <button 
+                onClick={isLastStep ? handleComplete : handleNext} 
+                className="next-button" 
+                {...nextButtonProps}
+              >
                 {isLastStep ? 'Complete' : nextButtonText}
               </button>
             </div>
@@ -233,24 +277,33 @@ interface StepIndicatorProps {
   currentStep: number;
   onClickStep: (step: number) => void;
   disableStepIndicators?: boolean;
+  isCompleted: boolean;
 }
 
-function StepIndicator({ step, currentStep, onClickStep, disableStepIndicators }: StepIndicatorProps) {
-  const status = currentStep === step ? 'active' : currentStep < step ? 'inactive' : 'complete';
+function StepIndicator({ step, currentStep, onClickStep, disableStepIndicators, isCompleted }: StepIndicatorProps) {
+  const status = currentStep === step ? 'active' : isCompleted ? 'complete' : 'inactive';
 
   const handleClick = () => {
-    if (step !== currentStep && !disableStepIndicators) {
+    if (!disableStepIndicators && (step <= currentStep || isCompleted)) {
       onClickStep(step);
     }
   };
 
+  const isClickable = !disableStepIndicators && (step <= currentStep || isCompleted);
+
   return (
-    <motion.div onClick={handleClick} className="step-indicator" animate={status} initial={false}>
+    <motion.div 
+      onClick={handleClick} 
+      className="step-indicator"
+      style={{ cursor: isClickable ? 'pointer' : 'not-allowed' }}
+      animate={status} 
+      initial={false}
+    >
       <motion.div
         variants={{
-          inactive: { scale: 1, backgroundColor: '#222', color: '#a3a3a3' },
-          active: { scale: 1, backgroundColor: '#5227FF', color: '#5227FF' },
-          complete: { scale: 1, backgroundColor: '#5227FF', color: '#3b82f6' }
+          inactive: { scale: 1, backgroundColor: '#e5e7eb', color: '#9ca3af', border: '2px solid #e5e7eb' },
+          active: { scale: 1.1, backgroundColor: '#5227FF', color: '#fff', border: '2px solid #5227FF', boxShadow: '0 0 0 4px rgba(82, 39, 255, 0.1)' },
+          complete: { scale: 1, backgroundColor: '#10b981', color: '#fff', border: '2px solid #10b981' }
         }}
         transition={{ duration: 0.3 }}
         className="step-indicator-inner"
@@ -273,8 +326,8 @@ interface StepConnectorProps {
 
 function StepConnector({ isComplete }: StepConnectorProps) {
   const lineVariants: Variants = {
-    incomplete: { width: 0, backgroundColor: 'transparent' },
-    complete: { width: '100%', backgroundColor: '#5227FF' }
+    incomplete: { width: 0, backgroundColor: '#e5e7eb' },
+    complete: { width: '100%', backgroundColor: '#10b981' }
   };
 
   return (
@@ -290,11 +343,11 @@ function StepConnector({ isComplete }: StepConnectorProps) {
   );
 }
 
-interface CheckIconProps extends React.SVGProps<SVGSVGElement> {}
+type CheckIconProps = React.SVGProps<SVGSVGElement>;
 
 function CheckIcon(props: CheckIconProps) {
   return (
-    <svg {...props} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <svg {...props} fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
       <motion.path
         initial={{ pathLength: 0 }}
         animate={{ pathLength: 1 }}

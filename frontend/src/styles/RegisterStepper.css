@@ -1,62 +1,64 @@
+/* Base container - responsif untuk semua device */
 .outer-container {
   display: flex;
-  min-height: 100%;
-  flex: 1 1 0%;
+  min-height: auto;
+  width: 100%;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 1rem;
+  justify-content: flex-start;
+  padding: 0.75rem;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
-@media (min-width: 640px) {
-  .outer-container {
-    aspect-ratio: 4 / 3;
-  }
-}
-
-@media (min-width: 768px) {
-  .outer-container {
-    aspect-ratio: 2 / 1;
-  }
-}
-
+/* Step circle container - responsif */
 .step-circle-container {
   margin-left: auto;
   margin-right: auto;
   width: 100%;
-  max-width: 28rem;
-  border-radius: 2rem;
+  max-width: 100%; /* Full width di mobile */
+  border-radius: 1rem; /* Lebih kecil di mobile */
   box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
 }
 
+/* Step indicator row - responsif */
 .step-indicator-row {
   display: flex;
   width: 100%;
   align-items: center;
-  padding: 2rem;
+  padding: 1rem 0.75rem; /* Lebih kecil di mobile */
+  box-sizing: border-box;
 }
 
+/* Step content */
 .step-content-default {
   position: relative;
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .step-default {
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  box-sizing: border-box;
 }
 
+/* Footer */
 .footer-container {
-  padding-left: 2rem;
-  padding-right: 2rem;
-  padding-bottom: 2rem;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .footer-nav {
-  margin-top: 2.5rem;
+  margin-top: 1.5rem;
   display: flex;
+  gap: 0.5rem;
 }
 
 .footer-nav.spread {
@@ -67,22 +69,28 @@
   justify-content: flex-end;
 }
 
+/* Buttons - responsif */
 .back-button {
   transition: all 350ms;
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  color: #a3a3a3;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1rem;
+  color: #6b7280;
   cursor: pointer;
+  border: none;
+  background: transparent;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .back-button:hover {
-  color: #52525b;
+  color: #374151;
+  background-color: #f3f4f6;
 }
 
 .back-button.inactive {
   pointer-events: none;
   opacity: 0.5;
-  color: #a3a3a3;
+  color: #d1d5db;
 }
 
 .next-button {
@@ -90,59 +98,75 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
+  border-radius: 0.5rem;
   background-color: #5227ff;
   color: #fff;
-  font-weight: 500;
-  letter-spacing: -0.025em;
-  padding: 0.375rem 0.875rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.625rem 1.25rem;
   cursor: pointer;
+  border: none;
+  white-space: nowrap;
 }
 
 .next-button:hover {
-  background-color: #5227ff;
+  background-color: #4318dd;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(82, 39, 255, 0.3);
 }
 
 .next-button:active {
-  background-color: #5227ff;
+  background-color: #3811bb;
+  transform: translateY(0);
 }
 
+.next-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Step indicator - responsif */
 .step-indicator {
   position: relative;
   cursor: pointer;
   outline: none;
+  flex-shrink: 0;
 }
 
 .step-indicator-inner {
   display: flex;
-  height: 2rem;
+  height: 2rem; /* Lebih kecil di mobile */
   width: 2rem;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
   font-weight: 600;
+  transition: all 0.3s ease;
 }
 
 .active-dot {
-  height: 0.75rem;
-  width: 0.75rem;
+  height: 0.625rem;
+  width: 0.625rem;
   border-radius: 9999px;
   background-color: #fff;
 }
 
 .step-number {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
+/* Step connector - responsif */
 .step-connector {
   position: relative;
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
-  height: 0.125rem;
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+  height: 2px;
   flex: 1;
   overflow: hidden;
   border-radius: 0.25rem;
-  background-color: #52525b;
+  background-color: #e5e7eb;
+  min-width: 10px; /* Minimum width untuk mobile kecil */
 }
 
 .step-connector-inner {
@@ -150,10 +174,193 @@
   left: 0;
   top: 0;
   height: 100%;
+  background-color: #10b981;
 }
 
 .check-icon {
-  height: 1rem;
-  width: 1rem;
+  height: 0.875rem;
+  width: 0.875rem;
   color: #fff;
+}
+
+/* ========== RESPONSIVE BREAKPOINTS ========== */
+
+/* Mobile S (320px) */
+@media (min-width: 320px) {
+  .outer-container {
+    padding: 0.5rem;
+  }
+  
+  .step-circle-container {
+    max-width: 100%;
+    border-radius: 1rem;
+  }
+  
+  .step-indicator-row {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .step-default {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  .footer-container {
+    padding: 0.75rem;
+  }
+  
+  .step-indicator-inner {
+    height: 1.75rem;
+    width: 1.75rem;
+  }
+  
+  .step-number {
+    font-size: 0.7rem;
+  }
+  
+  .next-button,
+  .back-button {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.875rem;
+  }
+}
+
+/* Mobile M (375px) */
+@media (min-width: 375px) {
+  .outer-container {
+    padding: 1rem;
+  }
+  
+  .step-circle-container {
+    border-radius: 1.25rem;
+  }
+  
+  .step-indicator-row {
+    padding: 1rem 0.75rem;
+  }
+  
+  .step-indicator-inner {
+    height: 2rem;
+    width: 2rem;
+  }
+  
+  .step-number {
+    font-size: 0.75rem;
+  }
+  
+  .next-button,
+  .back-button {
+    font-size: 0.875rem;
+    padding: 0.625rem 1rem;
+  }
+}
+
+/* Mobile L (425px) */
+@media (min-width: 425px) {
+  .step-circle-container {
+    max-width: 400px;
+  }
+  
+  .step-default {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Tablet (768px) */
+@media (min-width: 768px) {
+  .outer-container {
+    padding: 1.5rem;
+  }
+  
+  .step-circle-container {
+    max-width: 32rem;
+    border-radius: 1.5rem;
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  .step-indicator-row {
+    padding: 1.5rem 2rem;
+  }
+  
+  .step-default {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  .footer-container {
+    padding: 1.5rem 2rem 2rem;
+  }
+  
+  .footer-nav {
+    margin-top: 2rem;
+  }
+  
+  .step-indicator-inner {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+  
+  .step-number {
+    font-size: 0.875rem;
+  }
+  
+  .check-icon {
+    height: 1rem;
+    width: 1rem;
+  }
+  
+  .step-connector {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+  
+  .next-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9375rem;
+  }
+  
+  .back-button {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9375rem;
+  }
+}
+
+/* Laptop (1024px) */
+@media (min-width: 1024px) {
+  .step-circle-container {
+    max-width: 36rem;
+    border-radius: 2rem;
+  }
+  
+  .step-indicator-row {
+    padding: 2rem 2.5rem;
+  }
+  
+  .step-default {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+  
+  .footer-container {
+    padding: 2rem 2.5rem 2.5rem;
+  }
+}
+
+/* Desktop (1440px+) */
+@media (min-width: 1440px) {
+  .step-circle-container {
+    max-width: 42rem;
+  }
+}
+
+/* Ensure no horizontal overflow */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
 }

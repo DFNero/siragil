@@ -4,9 +4,6 @@ node_modules
 # build outputs
 dist
 
-# env files
-.env
-
 # misc
 .DS_Store
 *.log

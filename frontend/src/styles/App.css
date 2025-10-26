@@ -1,12 +1,2 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+@import "tailwindcss";
 /* Tambahkan warna dasar untuk body */
-body {
-  @apply bg-white text-gray-900 transition-colors duration-300;
-}
-
-.dark body {
-  @apply bg-gray-900 text-gray-100;
-}
