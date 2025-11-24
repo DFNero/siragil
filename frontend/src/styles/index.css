@@ -1,0 +1,24 @@
+/* index.css */
+
+@import "tailwindcss";
+
+/* Optional: reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+} 
+
+/* Add these styles to your global CSS file */
+.sidebar-transition {
+  transition: width 0.3s ease;
+}
+
+.label-transition {
+  transition: opacity 0.3s ease, max-width 0.3s ease;
+}
+
+.sidebar-item.collapsed .label-transition {
+  opacity: 0;
+  max-width: 0;
+}
